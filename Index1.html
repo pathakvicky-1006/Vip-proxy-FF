@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete Tasks to Unlock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: #f4f6f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 2rem 1.75rem;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .header { text-align: center; margin-bottom: 1.75rem; }
+    .header .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header h1 { font-size: 1.3rem; font-weight: 600; color: #111; margin-bottom: 6px; }
+    .header p { font-size: 0.85rem; color: #666; line-height: 1.5; }
+
+    .progress-wrap { margin-bottom: 1.5rem; }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .progress-top span { font-size: 0.8rem; color: #888; }
+    .progress-top strong { font-size: 0.8rem; color: #1D9E75; font-weight: 600; }
+    .bar-bg { background: #eef0f3; border-radius: 100px; height: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #1D9E75, #5DCAA5); border-radius: 100px; width: 0%; transition: width 0.5s ease; }
+
+    .task-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 15px;
+      border: 1.5px solid #e8eaed;
+      border-radius: 14px;
+      background: #fff;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .task-item.done {
+      border-color: #1D9E75;
+      background: #f0fdf8;
+    }
+
+    .task-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #888;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .task-item.done .task-num {
+      background: #1D9E75;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .task-label {
+      flex: 1;
+      font-size: 0.88rem;
+      color: #222;
+      font-weight: 500;
+    }
+    .task-item.done .task-label {
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    .open-btn {
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1.5px solid #d0d3d8;
+      background: transparent;
+      color: #333;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .open-btn:hover { background: #f4f6f8; border-color: #aaa; }
+    .task-item.done .open-btn { display: none; }
+
+    .warning-box {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: #fffbeb;
+      border: 1.5px solid #f59e0b;
+      border-radius: 12px;
+      padding: 13px 15px;
+      margin-bottom: 1.5rem;
+    }
+    .warning-box .w-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .warning-box .w-text { font-size: 0.82rem; color: #92400e; line-height: 1.55; }
+    .warning-box .w-text strong { display: block; font-weight: 600; margin-bottom: 2px; font-size: 0.84rem; }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.25s;
+      font-family: 'Sora', sans-serif;
+    }
+    .download-btn.locked {
+      background: #eef0f3;
+      color: #aaa;
+      pointer-events: none;
+    }
+    .download-btn.unlocked {
+      background: linear-gradient(135deg, #1D9E75, #0F6E56);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(29,158,117,0.35);
+      animation: pulse 2s infinite;
+    }
+    .download-btn.unlocked:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(29,158,117,0.45);
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 6px 20px rgba(29,158,117,0.35); }
+      50% { box-shadow: 0 6px 28px rgba(29,158,117,0.55); }
+    }
+
+    .return-note {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #1D9E75;
+      font-weight: 500;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="icon">🔒</div>
+      <h1>Complete Tasks to Unlock</h1>
+      <p>Open all 5 task links and complete them to unlock your download</p>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span>Progress</span>
+        <strong id="progressLabel">0 / 5 completed</strong>
+      </div>
+      <div class="bar-bg">
+        <div class="bar-fill" id="barFill"></div>
+      </div>
+    </div>
+
+    <div class="task-list">
+      <div class="task-item" id="t1">
+        <div class="task-num" id="n1">1</div>
+        <span class="task-label">Complete Task 1</span>
+        <a class="open-btn" href="https://omg10.com/4/11081748" target="_blank" onclick="markDone(1)">
+          Open ↗
+        </a>
+      </div>
+      <div class="task-item" id="t2">
+        <div class="task-num" id="n2">2</div>
+        <span class="task-label">Complete Task 2</span>
+        <a class="open-btn" href="https://omg10.com/4/11081753" target="_blank" onclick="markDone(2)">
+          Open ↗
+        </a>
+      </div>
+      <div class="task-item" id="t3">
+        <div class="task-num" id="n3">3</div>
+        <span class="task-label">Complete Task 3</span>
+        <a class="open-btn" href="https://omg10.com/4/11081754" target="_blank" onclick="markDone(3)">
+          Open ↗
+        </a>
+      </div>
+      <div class="task-item" id="t4">
+        <div class="task-num" id="n4">4</div>
+        <span class="task-label">Complete Task 4</span>
+        <a class="open-btn" href="https://omg10.com/4/11081756" target="_blank" onclick="markDone(4)">
+          Open ↗
+        </a>
+      </div>
+      <div class="task-item" id="t5">
+        <div class="task-num" id="n5">5</div>
+        <span class="task-label">Complete Task 5</span>
+        <a class="open-btn" href="https://omg10.com/4/11081757" target="_blank" onclick="markDone(5)">
+          Open ↗
+        </a>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <span class="w-icon">⚠️</span>
+      <div class="w-text">
+        <strong>Important — Read after downloading!</strong>
+        After downloading, come back to this page for further instructions. Do not close this tab!
+      </div>
+    </div>
+
+    <a id="downloadBtn" class="download-btn locked" href="#" target="_blank">
+      🔒 Complete all tasks first
+    </a>
+
+    <p class="return-note" id="returnNote">
+      ✅ Download started — please come back here after installing!
+    </p>
+  </div>
+
+  <script>
+    const done = new Set();
+    const DOWNLOAD_URL = "https://theastutebetaserver.com/download/";
+
+    function markDone(n) {
+      setTimeout(function() {
+        if (done.has(n)) return;
+        done.add(n);
+        document.getElementById('t' + n).classList.add('done');
+        document.getElementById('n' + n).textContent = '✓';
+        updateProgress();
+      }, 1000);
+    }
+
+    function updateProgress() {
+      var count = done.size;
+      document.getElementById('barFill').style.width = (count / 5 * 100) + '%';
+      document.getElementById('progressLabel').textContent = count + ' / 5 completed';
+
+      if (count === 5) {
+        var btn = document.getElementById('downloadBtn');
+        btn.classList.remove('locked');
+        btn.classList.add('unlocked');
+        btn.href = DOWNLOAD_URL;
+        btn.innerHTML = '🎉 Here it is — Download Now!';
+        btn.addEventListener('click', function() {
+          setTimeout(function() {
+            document.getElementById('returnNote').style.display = 'block';
+          }, 1200);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
